@@ -318,7 +318,7 @@ export default function App(){
     let si=0;setLoadTxt(steps[0]);
     const timer=setInterval(()=>{si=(si+1)%steps.length;setLoadTxt(steps[si]);},900);
     try{
-      const resp=await fetch('http://localhost:5000/api/predict',{
+      const resp=await fetch('https://roadguard-ai-3l7z.onrender.com/api/predict',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({

@@ -1,0 +1,61 @@
+{
+  "model": "Gradient Boosting",
+  "accuracy": 0.8068,
+  "features": [
+    "hour",
+    "day_of_week",
+    "is_weekend",
+    "is_rush_hour",
+    "is_night",
+    "weather_enc",
+    "traffic_enc",
+    "road_type_enc",
+    "visibility_enc",
+    "speed_limit",
+    "driver_age_num",
+    "vehicle_type_enc"
+  ],
+  "categories": {
+    "weather": [
+      "clear",
+      "drizzle",
+      "foggy",
+      "heavy_rain",
+      "overcast",
+      "partly_cloudy",
+      "rainy",
+      "snowy",
+      "stormy"
+    ],
+    "traffic": [
+      "high",
+      "low",
+      "medium"
+    ],
+    "road_type": [
+      "highway",
+      "mountain",
+      "rural",
+      "urban"
+    ],
+    "visibility": [
+      "good",
+      "moderate",
+      "poor",
+      "very_poor"
+    ],
+    "vehicle_type": [
+      "bicycle",
+      "bus",
+      "car",
+      "motorcycle",
+      "truck"
+    ]
+  },
+  "trained_on": 50000,
+  "classes": [
+    "Low",
+    "Medium",
+    "High"
+  ]
+}

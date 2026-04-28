@@ -114,10 +114,48 @@ def get_users():
     users_list = [dict(row) for row in users]
     return jsonify({"success": True, "users": users_list})
 
+
+def rule_based_predict(d):
+    weather = d.get("weather", "clear")
+    traffic = d.get("traffic", "medium")
+    road_type = d.get("roadType", "urban")
+    visibility = d.get("visibility", "good")
+    speed_limit = int(d.get("speedLimit", 50))
+    driver_age = d.get("driverAge", "25-45")
+    vehicle_type = d.get("vehicleType", "car")
+    location = d.get("location", "Unknown")
+    weather_label = d.get("weatherLabel", weather)
+
+    score = 20
+    score += {"clear":0,"partly_cloudy":5,"overcast":8,"drizzle":12,"rainy":20,"heavy_rain":30,"foggy":35,"snowy":25,"stormy":40}.get(weather, 0)
+    score += {"low":0,"medium":10,"high":20}.get(traffic, 0)
+    score += {"good":0,"moderate":8,"poor":18,"very_poor":30}.get(visibility, 0)
+    score += {"urban":0,"rural":5,"highway":8,"mountain":15}.get(road_type, 0)
+    score += {"car":0,"suv":2,"bus":4,"truck":8,"bicycle":12,"motorcycle":28}.get(vehicle_type, 0)
+    score += {"25-45":0,"46-65":5,"16-24":15,"65+":12}.get(driver_age, 0)
+    if speed_limit >= 120: score += 20
+    elif speed_limit >= 100: score += 12
+    elif speed_limit >= 80: score += 6
+
+    score = min(95, max(5, score))
+    risk_level = "High" if score >= 65 else "Medium" if score >= 35 else "Low"
+
+    return jsonify({
+        "riskLevel": risk_level,
+        "riskPercentage": score,
+        "explanation": f"This {road_type} trip from {location} with {weather_label} weather and {traffic} traffic is rated {risk_level} risk at {score}%.",
+        "topFactors": [f"Weather: {weather_label}", f"Traffic: {traffic}", f"Vehicle: {vehicle_type}"],
+        "recommendations": ["Maintain safe following distance", "Check weather before departure", "Drive within speed limits"],
+        "safeToTravel": risk_level != "High",
+        "alternativeSuggestion": "Consider delaying if conditions worsen." if risk_level == "High" else "",
+        "riskBreakdown": {"weather": min(40,score//3), "traffic": min(20,score//5), "vehicle": min(20,score//6)},
+    })
+
+
 @app.route("/api/predict", methods=["POST"])
 def predict():
     if risk_model is None:
-        return jsonify({"message": "Model not loaded. Run train_model.py first."}), 503
+        return rule_based_predict(request.get_json())
 
     d = request.get_json()
 
